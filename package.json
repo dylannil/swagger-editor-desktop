@@ -71,7 +71,11 @@
       "msi": true
     },
     "linux": {
-      "target": "appimage",
+      "target": [
+        "appimage",
+        "deb",
+        "rpm"
+      ],
       "category": "Utility;TextEditor;Development;IDE",
       "icon": "res/image/icon"
     }
