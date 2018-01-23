@@ -1,0 +1,49 @@
+@import '../../node_modules/swagger-editor-dist/swagger-editor.css'
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Roboto, sans-serif;
+  font-size: 9px;
+  line-height: 1.42857143;
+  color: #444;
+  margin: 0px;
+}
+
+#swagger-editor {
+  font-size: 1.3em;
+}
+
+.container {
+  height: 100%;
+  max-width: 880px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#editor-wrapper {
+  height: 100%;
+  border: 1em solid #000;
+  border: none;
+}
+
+.Pane2 {
+  overflow-y: scroll;
+}
+
+.topbar {
+  background-color: #89bf04;
+  width: 100%;
+  height: 46px;
+}
+.topbar-wrapper {
+  padding: 12px;
+  display: flex;
+  font-size: 16px;
+  color: white;
+}
+.topbar-name {
+  font-weight: bold;
+}
