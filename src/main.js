@@ -24,7 +24,7 @@ app
     mainWindow.setMenu(null);
     mainWindow.webContents.on('did-finish-load', () => {
       mainWindow.show();
-      mainWindow.openDevTools();
+      process.env.NODE_ENV === 'debug' && mainWindow.openDevTools();
     });
     mainWindow.on('closed', () => {
       mainWindow = null;

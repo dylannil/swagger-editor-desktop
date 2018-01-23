@@ -1,11 +1,12 @@
 {
-  "name": "swagger-editor-desktop",
+  "name": "swagger_editor_desktop",
   "version": "0.0.1",
   "description": "Swagger Editor Desktop Edition",
   "main": "src/main.js",
   "scripts": {
-    "start": "electron src/main.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "cross-env NODE_ENV=debug electron src/main.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pack": "electron-builder"
   },
   "repository": {
     "type": "git",
@@ -26,6 +27,54 @@
     "swagger-editor-dist": "^3.2.5"
   },
   "devDependencies": {
-    "electron": "^1.7.11"
+    "cross-env": "^5.1.3",
+    "electron": "^1.7.11",
+    "electron-builder": "^19.54.0",
+    "electron-builder-squirrel-windows": "^19.55.1"
+  },
+  "build": {
+    "appId": "io.swagger.editor",
+    "productName": "Swaggereditor",
+    "copyright": "Copyright © 2018 Li Xiao-Bo",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/main.js",
+      "src/play/*.html",
+      "src/play/*.css",
+      "src/play/*.js"
+    ],
+    "mac": {
+      "icon": "res/image/icon.icns"
+    },
+    "win": {
+      "icon": "res/image/icon.ico",
+      "target": [
+        "portable",
+        "nsis",
+        "squirrel"
+      ]
+    },
+    "portable": {
+      "useZip": true,
+      "requestExecutionLevel": "user"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "installerIcon": "res/image/icon.ico",
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "Swagger Editor"
+    },
+    "squirrelWindows": {
+      "msi": true
+    },
+    "linux": {
+      "target": "appimage",
+      "category": "Utility;TextEditor;Development;IDE",
+      "icon": "res/image/icon"
+    }
   }
 }
