@@ -46,7 +46,11 @@
       "src/play/*.js"
     ],
     "mac": {
-      "icon": "res/image/icon.icns"
+      "icon": "res/image/icon.icns",
+      "target": [
+        "dmg",
+        "pkg"
+      ]
     },
     "win": {
       "icon": "res/image/icon.ico",
