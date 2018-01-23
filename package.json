@@ -34,7 +34,7 @@
   },
   "build": {
     "appId": "io.swagger.editor",
-    "productName": "Swaggereditor",
+    "productName": "Swagger Editor",
     "copyright": "Copyright © 2018 Li Xiao-Bo",
     "directories": {
       "output": "dist"
@@ -57,7 +57,6 @@
       ]
     },
     "portable": {
-      "useZip": true,
       "requestExecutionLevel": "user"
     },
     "nsis": {
