@@ -4,6 +4,15 @@
   box-sizing: border-box;
 }
 
+::-webkit-scrollbar {
+  width: 3px;
+  background-color: transparent;
+}
+::-webkit-scrollbar-thumb {
+  width: 3px;
+  background-color: rgba(131, 131, 131, 0.3);
+}
+
 body {
   font-family: Roboto, sans-serif;
   font-size: 9px;
@@ -46,4 +55,13 @@ body {
 }
 .topbar-name {
   font-weight: bold;
+}
+
+.Resizer {
+  width: 2px;
+  cursor: ew-resize;
+}
+
+.swagger-ui .wrapper {
+  box-sizing: border-box;
 }
