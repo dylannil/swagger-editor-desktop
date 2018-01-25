@@ -18,25 +18,6 @@ class Topbar extends React.Component {
           key: 'topbar-wrapper',
           className: 'topbar-wrapper'
         }, [
-          React.createElement('input', {
-            key: 'input',
-            type: 'file',
-            ref: 'fileLoadInput',
-            accept: ".yaml, .yml",
-            onChange: e => {
-              var file = e.target.files[0];
-              if (file) {
-                let fileReader = new FileReader()
-
-                fileReader.onload = fileLoadedEvent => {
-                  let textFromFileLoaded = fileLoadedEvent.target.result
-                  this.props.specActions.updateSpec(YAML.safeDump(YAML.safeLoad(textFromFileLoaded)))
-                }
-
-                fileReader.readAsText(file, "UTF-8");
-              }
-            }
-          }),
           React.createElement('span', {
             key: 'name',
             className: 'topbar-name',
@@ -51,7 +32,7 @@ class Topbar extends React.Component {
                 file = path.resolve(file);
                 fs.readFile(file, (err, data) => {
                   var code = data.toString();
-                  editor;
+                  this.props.specActions.updateSpec(YAML.safeDump(YAML.safeLoad(code)));
                 });
               }
             })
