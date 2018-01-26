@@ -5,12 +5,11 @@
 }
 
 ::-webkit-scrollbar {
-  width: 3px;
-  background-color: transparent;
+  width: 10px;
+  background-color: rgba(0, 0, 0, 0.2);
 }
 ::-webkit-scrollbar-thumb {
-  width: 3px;
-  background-color: rgba(131, 131, 131, 0.3);
+  background-color: rgba(255, 255, 255, 0.6);
 }
 
 body {
@@ -46,12 +45,24 @@ body {
   background-color: #89bf04;
   width: 100%;
   height: 46px;
+  overflow: hidden;
 }
 .topbar-wrapper {
-  padding: 12px;
-  display: flex;
+  padding: 0 11px;
   font-size: 16px;
   color: white;
+  line-height: 46px;
+}
+.topbar-file {
+  margin-right: 11px;
+  width: 30px;
+  height: 30px;
+  border-radius: 15px;
+  display: inline-block;
+  vertical-align: middle;
+  fill: rgba(255,255,255,.6);
+  background-color: #547F00;
+  cursor: pointer;
 }
 .topbar-name {
   font-weight: bold;
