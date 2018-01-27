@@ -82,6 +82,15 @@ body {
   margin-left: 0;
   transition: margin-left .25s ease;
 }
+.topbar-name-flag {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 10px;
+  background-color: white;
+  vertical-align: 1%;
+  margin: 0 5px;
+}
 .topbar-name-btns {
   position: absolute;
   top: 0;

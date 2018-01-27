@@ -9,6 +9,12 @@ const {dialog} = require('electron').remote;
 
 class Topbar extends React.Component {
   render() {
+    let yaml = this.props.specSelectors.specStr();
+    if (!this.yaml) {
+      this.yaml = yaml;
+    } else if (yaml !== this.yaml) {
+      this.yaml && (this.changed = true);
+    }
     return React.createElement('div', null,
       React.createElement('div', {
         key: 'topbar',
@@ -20,7 +26,7 @@ class Topbar extends React.Component {
           React.createElement('div', {
             key: 'xxxx',
             className: 'topbar-file',
-            title: '打开文件',
+            title: 'Open File',
             onClick: () => this.open()
           }, [
             React.createElement('svg', {
@@ -53,29 +59,61 @@ class Topbar extends React.Component {
               ref: 'file',
               title: 'untitled.yaml',
               className: 'topbar-name-text'
-            }, 'untitled.yaml')
+            }, 'untitled.yaml'),
+            !!this.changed && React.createElement('span', {
+              key: 'changed',
+              className: 'topbar-name-flag'
+            })
           ])
         ])
       )
     );
   }
   async open() {
-    dialog.showOpenDialog({
-      buttonLabel: 'open',
-      properties: ['openFile', 'createDirectory'],
-      filters: [{name: 'yaml', extensions: ['yaml']}],
-      message: 'open a swagger file to read & edit'
-    }, filePaths => {
-      let file = (filePaths || [])[0];
-      if (file) {
-        file = path.resolve(file);
-        fs.readFile(file, (err, data) => {
-          this.showfile(file);
-          var code = data.toString();
-          this.props.specActions.updateSpec(YAML.safeDump(YAML.safeLoad(code)));
+    if (this.changed) {
+      let sn = await new Promise((resolve, reject) => {
+        dialog.showMessageBox({
+          title: 'Info',
+          message: 'The current file has been modified, do you want to save it?',
+          buttons: ['Cancel', 'Unsave', 'Save']
+        }, sn => {
+          resolve(sn);
         });
+      });
+      if (sn === 1) {
+        this.props.specActions.updateSpec(this.yaml);
+        this.showfile(this.file);
+      } else if (sn === 2) {
+        await this.save();
+      } else {
+        return ;
       }
-    })
+      setTimeout(() => {
+        dialog.showMessageBox({
+          title: 'Info',
+          message: 'You can click the file icon to open a new file now.',
+          buttons: ['OK']
+        });
+      }, 300);
+    } else {
+      dialog.showOpenDialog({
+        buttonLabel: 'open',
+        properties: ['openFile', 'createDirectory'],
+        filters: [{name: 'yaml', extensions: ['yaml']}],
+        message: 'open a swagger file to read & edit'
+      }, filePaths => {
+        let file = (filePaths || [])[0];
+        if (file) {
+          file = path.resolve(file);
+          fs.readFile(file, (err, data) => {
+            var code = data.toString();
+            this.yaml = YAML.safeDump(YAML.safeLoad(code));
+            this.props.specActions.updateSpec(this.yaml);
+            this.showfile(file);
+          });
+        }
+      })
+    }
   }
   async save(resave) {
     let editorContent = this.props.specSelectors.specStr();
@@ -95,20 +133,24 @@ class Topbar extends React.Component {
       })
     }
     if (file) {
-      fs.writeFile(file, yamlContent, err => {
-        this.showfile(file);
+      await new Promise((resolve, reject) => fs.writeFile(file, yamlContent, err => {
         if (err) {
-          alert(err);
+          reject(err);
         }
-      });
+        this.yaml = yamlContent;
+        this.showfile(file);
+        resolve();
+      }));
     }
   }
-  showfile(file) {
+  showfile(file = '') {
     this.file = file;
     let basename = path.basename(file);
-    this.refs.file.innerHTML = basename;
-    this.refs.file.title = file;
-    document.title = file;
+    this.refs.file.innerHTML = basename || 'untitled.yaml';
+    this.refs.file.title = file || 'untitled.yaml';
+    document.title = file || 'Swagger Editor';
+    this.changed = false;
+    this.setState(); // rerender
   }
 }
 
