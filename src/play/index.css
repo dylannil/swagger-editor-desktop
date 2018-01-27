@@ -69,7 +69,7 @@ body {
   display: inline-block;
   vertical-align: top;
   overflow: hidden;
-  width: 10em;
+  width: 12em;
   white-space: nowrap;
   position: relative;
 }
@@ -95,7 +95,7 @@ body {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: -160px;
+  left: -188px;
   margin: auto;
   padding: 0 5px;
   height: 20px;
@@ -118,6 +118,9 @@ body {
 }
 .border-right {
   border-right: 1px solid rgba(255,255,255,.35);
+}
+.border-left {
+  border-left: 1px solid rgba(255,255,255,.35);
 }
 .topbar-name:hover .topbar-name-text {
   margin-left: -10em;

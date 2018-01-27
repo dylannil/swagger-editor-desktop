@@ -6,8 +6,13 @@ const fs = require('fs');
 const path = require('path');
 const YAML = require('js-yaml');
 const {dialog} = require('electron').remote;
+const untitled = YAML.safeDump(YAML.safeLoad(require('./default.js')));
 
 class Topbar extends React.Component {
+  componentDidMount() {
+    this.changed = false;
+    this.props.specActions.updateSpec(untitled);
+  }
   render() {
     let yaml = this.props.specSelectors.specStr();
     if (!this.yaml) {
@@ -52,7 +57,11 @@ class Topbar extends React.Component {
               React.createElement('div', {
                 className: 'topbar-name-btn',
                 onClick: () => this.save(true)
-              }, 'save as ...')
+              }, 'save as ...'),
+              (!!this.file || !!this.changed) && React.createElement('div', {
+                className: 'topbar-name-btn border-left',
+                onClick: () => this.close()
+              }, '×')
             ]),
             React.createElement('span', {
               key: 'text',
@@ -71,21 +80,8 @@ class Topbar extends React.Component {
   }
   async open() {
     if (this.changed) {
-      let sn = await new Promise((resolve, reject) => {
-        dialog.showMessageBox({
-          title: 'Info',
-          message: 'The current file has been modified, do you want to save it?',
-          buttons: ['Cancel', 'Unsave', 'Save']
-        }, sn => {
-          resolve(sn);
-        });
-      });
-      if (sn === 1) {
-        this.props.specActions.updateSpec(this.yaml);
-        this.showfile(this.file);
-      } else if (sn === 2) {
-        await this.save();
-      } else {
+      let ret = await this.close(true);
+      if (ret === -1) {
         return ;
       }
       setTimeout(() => {
@@ -141,6 +137,32 @@ class Topbar extends React.Component {
         this.showfile(file);
         resolve();
       }));
+    }
+  }
+  async close(keep) {
+    if (this.changed) {
+      let sn = await new Promise((resolve, reject) => {
+        dialog.showMessageBox({
+          title: 'Info',
+          message: 'The current file has been modified, do you want to save it?',
+          buttons: ['Cancel', 'Unsave', 'Save']
+        }, sn => {
+          resolve(sn);
+        });
+      });
+      if (sn === 1) {
+        this.props.specActions.updateSpec(this.yaml);
+        this.showfile(this.file);
+      } else if (sn === 2) {
+        await this.save();
+      } else {
+        return -1;
+      }
+    }
+    if (!keep) {
+      this.yaml = untitled;
+      this.props.specActions.updateSpec(untitled);
+      this.showfile();
     }
   }
   showfile(file = '') {
