@@ -33,48 +33,82 @@ class Topbar extends React.Component {
               })
             ])
           ]),
-          React.createElement('span', {
-            key: 'name',
-            ref: 'file',
-            title: 'untitled.yaml',
-            className: 'topbar-name',
-            onClick: () => this.save()
-          }, 'untitled.yaml')
+          React.createElement('div', {
+            className: 'topbar-name'
+          }, [
+            React.createElement('div', {
+              className: 'topbar-name-btns'
+            }, [
+              !!this.file && React.createElement('div', {
+                className: 'topbar-name-btn border-right',
+                onClick: () => this.save()
+              }, 'save'),
+              React.createElement('div', {
+                className: 'topbar-name-btn',
+                onClick: () => this.save(true)
+              }, 'save as ...')
+            ]),
+            React.createElement('span', {
+              key: 'text',
+              ref: 'file',
+              title: 'untitled.yaml',
+              className: 'topbar-name-text'
+            }, 'untitled.yaml')
+          ])
         ])
       )
     );
   }
   async open() {
     dialog.showOpenDialog({
-      buttonLabel: '打开',
+      buttonLabel: 'open',
       properties: ['openFile', 'createDirectory'],
-      filters: [{name: 'yml', extensions: ['yaml']}],
-      message: '打开本地SWAGGER配置文件'
+      filters: [{name: 'yaml', extensions: ['yaml']}],
+      message: 'open a swagger file to read & edit'
     }, filePaths => {
-      let file = filePaths[0];
+      let file = (filePaths || [])[0];
       if (file) {
-        this.file = file;
         file = path.resolve(file);
-        let basename = path.basename(file);
         fs.readFile(file, (err, data) => {
-          this.refs.file.innerHTML = basename;
-          this.refs.file.title = file;
-          document.title = file;
+          this.showfile(file);
           var code = data.toString();
           this.props.specActions.updateSpec(YAML.safeDump(YAML.safeLoad(code)));
         });
       }
     })
   }
-  async save() {
+  async save(resave) {
     let editorContent = this.props.specSelectors.specStr();
     let jsContent = YAML.safeLoad(editorContent);
     let yamlContent = YAML.safeDump(jsContent);
-    this.file && fs.writeFile(this.file, yamlContent, (err) => {
-      if (err) {
-        alert(err);
-      }
-    });
+    let file = this.file;
+    if (resave || !file) {
+      file = await new Promise((resolve, reject) => {
+        dialog.showSaveDialog({
+          buttonLabel: 'save',
+          properties: ['openFile', 'createDirectory'],
+          filters: [{name: 'yaml', extensions: ['yaml']}],
+          message: 'save as ...'
+        }, file => {
+          resolve(file);
+        });
+      })
+    }
+    if (file) {
+      fs.writeFile(file, yamlContent, err => {
+        this.showfile(file);
+        if (err) {
+          alert(err);
+        }
+      });
+    }
+  }
+  showfile(file) {
+    this.file = file;
+    let basename = path.basename(file);
+    this.refs.file.innerHTML = basename;
+    this.refs.file.title = file;
+    document.title = file;
   }
 }
 

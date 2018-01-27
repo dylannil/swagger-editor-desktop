@@ -52,6 +52,7 @@ body {
   font-size: 16px;
   color: white;
   line-height: 46px;
+  user-select: none;
 }
 .topbar-file {
   margin-right: 11px;
@@ -65,7 +66,55 @@ body {
   cursor: pointer;
 }
 .topbar-name {
-  font-weight: bold;
+  display: inline-block;
+  vertical-align: top;
+  overflow: hidden;
+  width: 10em;
+  white-space: nowrap;
+  position: relative;
+}
+.topbar-name-text {
+  display: inline-block;
+  vertical-align: top;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  margin-left: 0;
+  transition: margin-left .25s ease;
+}
+.topbar-name-btns {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -160px;
+  margin: auto;
+  padding: 0 5px;
+  height: 20px;
+  background-color: rgba(87, 132, 0, 0.41);
+  line-height: 20px;
+  border: 1px solid rgba(255,255,255,.35);
+  border-radius: 20px;
+  transition: left .25s ease;
+}
+.topbar-name-btn {
+  display: inline-block;
+  padding: 0 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.topbar-name-btn:active {
+  color: rgba(255,255,255,.6);
+}
+.border-right {
+  border-right: 1px solid rgba(255,255,255,.35);
+}
+.topbar-name:hover .topbar-name-text {
+  margin-left: -10em;
+}
+.topbar-name:hover .topbar-name-btns {
+  left: 0;
 }
 
 .Resizer {
