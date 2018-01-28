@@ -18,21 +18,11 @@ app
         devTools: true,
         webSecurity: false
       },
-      titleBarStyle: 'hidden-inset',
+      titleBarStyle: process.platform === 'darwin' ? 'default' : 'hidden-inset',
       frame: true
     });
     mainWindow.loadURL(`file://${__dirname}/play/index.html`);
-    mainWindow.setMenu(process.platform === 'darwin' ? Menu.buildFromTemplate([
-      {
-        label: 'Help',
-        submenu: [
-          {
-            label: 'About',
-            click: () => about()
-          }
-        ]
-      }
-    ]) : null);
+    mainWindow.setMenu(null);
     mainWindow.webContents.on('did-finish-load', () => {
       mainWindow.show();
       process.env.NODE_ENV === 'debug' && mainWindow.openDevTools();
