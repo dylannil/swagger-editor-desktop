@@ -47,12 +47,21 @@ body {
   height: 46px;
   overflow: hidden;
 }
+.topbar-right {
+  float: right;
+  overflow: hidden;
+  line-height: 46px;
+  white-space: nowrap;
+  color: white;
+  padding: 0 1em;
+}
 .topbar-wrapper {
   padding: 0 11px;
   font-size: 16px;
   color: white;
   line-height: 46px;
   user-select: none;
+  overflow: hidden;
 }
 .topbar-file {
   margin-right: 11px;
@@ -92,10 +101,6 @@ body {
   margin: 0 5px;
 }
 .topbar-name-btns {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: -188px;
   margin: auto;
   padding: 0 5px;
   height: 20px;
@@ -104,6 +109,17 @@ body {
   border: 1px solid rgba(255,255,255,.35);
   border-radius: 20px;
   transition: left .25s ease;
+}
+.topbar-name-btns.abs {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -200px;
+}
+.topbar-name-btns.inline {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 1em;
 }
 .topbar-name-btn {
   display: inline-block;

@@ -24,7 +24,27 @@ class Topbar extends React.Component {
       React.createElement('div', {
         key: 'topbar',
         className: 'topbar'
-      }, React.createElement('div', {
+      }, [
+        React.createElement('div', {
+          key: 'topbar-right',
+          className: 'topbar-right'
+        }, [
+          React.createElement('div', {
+            className: 'topbar-name-btns inline'
+          }, [
+            React.createElement('div', {
+              key: 'Dump',
+              className: 'topbar-name-btn',
+              onClick: () => this.dump()
+            }, 'Dump'),
+            process.env.NODE_ENV === 'debug' && React.createElement('div', {
+              key: 'CodeGen',
+              className: 'topbar-name-btn border-left',
+              onClick: () => this.gen()
+            }, 'Gen')
+          ])
+        ]),
+        React.createElement('div', {
           key: 'topbar-wrapper',
           className: 'topbar-wrapper'
         }, [
@@ -48,16 +68,16 @@ class Topbar extends React.Component {
             className: 'topbar-name'
           }, [
             React.createElement('div', {
-              className: 'topbar-name-btns'
+              className: 'topbar-name-btns abs'
             }, [
               !!this.file && React.createElement('div', {
                 className: 'topbar-name-btn border-right',
                 onClick: () => this.save()
-              }, 'save'),
+              }, 'Save'),
               React.createElement('div', {
                 className: 'topbar-name-btn',
                 onClick: () => this.save(true)
-              }, 'save as ...'),
+              }, 'Save as ...'),
               (!!this.file || !!this.changed) && React.createElement('div', {
                 className: 'topbar-name-btn border-left',
                 onClick: () => this.close()
@@ -75,7 +95,7 @@ class Topbar extends React.Component {
             })
           ])
         ])
-      )
+      ])
     );
   }
   async open() {
@@ -103,7 +123,7 @@ class Topbar extends React.Component {
           file = path.resolve(file);
           fs.readFile(file, (err, data) => {
             var code = data.toString();
-            this.yaml = YAML.safeDump(YAML.safeLoad(code));
+            this.yaml = code;
             this.props.specActions.updateSpec(this.yaml);
             this.showfile(file);
           });
@@ -112,9 +132,7 @@ class Topbar extends React.Component {
     }
   }
   async save(resave) {
-    let editorContent = this.props.specSelectors.specStr();
-    let jsContent = YAML.safeLoad(editorContent);
-    let yamlContent = YAML.safeDump(jsContent);
+    let yamlContent = this.props.specSelectors.specStr();
     let file = this.file;
     if (resave || !file) {
       file = await new Promise((resolve, reject) => {
@@ -173,6 +191,27 @@ class Topbar extends React.Component {
     document.title = file || 'Swagger Editor';
     this.changed = false;
     this.setState(); // rerender
+  }
+
+  async dump() {
+    let sn = await new Promise((resolve, reject) => {
+      dialog.showMessageBox({
+        title: 'Info',
+        message: 'Dump will delete all blank lines and comments, do you still want to continue?',
+        buttons: ['Cancel', 'Dump']
+      }, sn => {
+        resolve(sn);
+      });
+    });
+    if (sn === 1) {
+      let editorContent = this.props.specSelectors.specStr();
+      let jsonContent = YAML.safeLoad(editorContent);
+      let yamlContent = YAML.safeDump(jsonContent);
+      this.props.specActions.updateSpec(yamlContent);
+    }
+  }
+  async gen() {
+    // 
   }
 }
 
