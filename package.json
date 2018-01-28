@@ -25,6 +25,7 @@
   "homepage": "https://github.com/muhonglong/swagger-editor-desktop#readme",
   "dependencies": {
     "js-yaml": "^3.10.0",
+    "mousetrap": "^1.6.1",
     "swagger-editor-dist": "^3.2.5"
   },
   "devDependencies": {

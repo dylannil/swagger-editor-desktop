@@ -6,12 +6,22 @@ const fs = require('fs');
 const path = require('path');
 const YAML = require('js-yaml');
 const {dialog} = require('electron').remote;
+const mousetrap = require('mousetrap');
 const untitled = YAML.safeDump(YAML.safeLoad(require('./default.js')));
+const editAction = {};
 
 class Topbar extends React.Component {
   componentDidMount() {
     this.changed = false;
     this.props.specActions.updateSpec(untitled);
+    // 
+    mousetrap.bind(['command+o', 'ctrl+o'], () => this.open());
+    mousetrap.bind(['command+s', 'ctrl+s'], () => this.save());
+    mousetrap.bind(['command+shift+s', 'ctrl+shift+s'], () => this.save(true));
+    mousetrap.bind(['command+shift+d', 'ctrl+shift+d'], () => this.dump());
+    editAction.open = () => this.open();
+    editAction.save = resave => this.save(resave)
+    editAction.dump = () => this.dump();
   }
   render() {
     let yaml = this.props.specSelectors.specStr();
@@ -234,6 +244,57 @@ module.exports = function() {
         components: {
           Topbar,
           YioLayout
+        },
+        statePlugins: {
+          editor: {
+            wrapActions: {
+              onLoad: (ori, sys) => (context) => {
+                const {editor} = context;
+                // ori(context);
+                editor.commands.addCommand({
+                  name: 'open',
+                  bindKey: {
+                      mac: 'Command-O',
+                      win: 'Ctrl-O'
+                  },
+                  exec: function(env, args, request) {
+                    editAction.open && editAction.open();
+                  }
+                });
+                editor.commands.addCommand({
+                  name: 'save',
+                  bindKey: {
+                      mac: 'Command-S',
+                      win: 'Ctrl-S'
+                  },
+                  exec: function(env, args, request) {
+                    editAction.save && editAction.save();
+                  }
+                });
+                editor.commands.addCommand({
+                  name: 'resave',
+                  bindKey: {
+                      mac: 'Command-Shift-S',
+                      win: 'Ctrl-Shift-S'
+                  },
+                  exec: function(env, args, request) {
+                    editAction.save && editAction.save(true);
+                  }
+                });
+                editor.commands.addCommand({
+                  name: 'dump',
+                  bindKey: {
+                      mac: 'Command-Shift-D',
+                      win: 'Ctrl-Shift-D'
+                  },
+                  exec: function(env, args, request) {
+                    editAction.dump && editAction.dump();
+                  }
+                });
+                return ;
+              }
+            },
+          }
         }
       }
     }
