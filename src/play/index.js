@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const YAML = require('js-yaml');
 const {dialog} = require('electron').remote;
+const {ipcRenderer: ipc} = require('electron');
 const mousetrap = require('mousetrap');
 const untitled = YAML.safeDump(YAML.safeLoad(require('./default.js')));
 const editAction = {};
@@ -40,6 +41,7 @@ class Topbar extends React.Component {
           className: 'topbar-right'
         }, [
           React.createElement('div', {
+            key: 'btns',
             className: 'topbar-name-btns inline'
           }, [
             React.createElement('div', {
@@ -52,7 +54,19 @@ class Topbar extends React.Component {
               className: 'topbar-name-btn border-left',
               onClick: () => this.gen()
             }, 'Gen')
-          ])
+          ]),
+          React.createElement('div', {
+            key: 'about',
+            className: 'topbar-name-about',
+            title: 'About',
+            onClick: () => this.about()
+          }, React.createElement('svg', {
+            key: 'about',
+            className: 'topbar-name-about-svg'
+          }, React.createElement('use', {
+            key: 'yyyy',
+            href: '#about'
+          })))
         ]),
         React.createElement('div', {
           key: 'topbar-wrapper',
@@ -222,6 +236,9 @@ class Topbar extends React.Component {
   }
   async gen() {
     // 
+  }
+  about() {
+    ipc.send('about', 'open');
   }
 }
 

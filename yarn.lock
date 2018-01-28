@@ -34,6 +34,10 @@
   version "7.0.52"
   resolved "http://registry.npm.taobao.org/@types/node/download/@types/node-7.0.52.tgz#8990d3350375542b0c21a83cd0331e6a8fc86716"
 
+about-window@^1.8.0:
+  version "1.8.0"
+  resolved "http://registry.npm.taobao.org/about-window/download/about-window-1.8.0.tgz#3e183cfaef4342e1fea6c442f4e43f682e9da580"
+
 ajv-keywords@^2.1.0:
   version "2.1.1"
   resolved "http://registry.npm.taobao.org/ajv-keywords/download/ajv-keywords-2.1.1.tgz#617997fc5f60576894c435f940d819e135b80762"
