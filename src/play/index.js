@@ -53,7 +53,12 @@ class Topbar extends React.Component {
               key: 'CodeGen',
               className: 'topbar-name-btn border-left',
               onClick: () => this.gen()
-            }, 'Gen')
+            }, 'Gen'),
+            process.env.NODE_ENV === 'debug' && React.createElement('div', {
+              key: 'Preferences',
+              className: 'topbar-name-btn border-left',
+              onClick: () => this.config()
+            }, 'Preferences')
           ]),
           React.createElement('div', {
             key: 'about',
@@ -237,6 +242,9 @@ class Topbar extends React.Component {
   async gen() {
     // 
   }
+  async config() {
+    editor.setOption('showInvisibles', !editor.getOption('showInvisibles'));
+  }
   about() {
     ipc.send('about', 'open');
   }
@@ -268,6 +276,7 @@ module.exports = function() {
               onLoad: (ori, sys) => (context) => {
                 const {editor} = context;
                 // ori(context);
+                global.editor = editor;
                 editor.commands.addCommand({
                   name: 'open',
                   bindKey: {
