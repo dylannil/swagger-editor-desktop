@@ -1,7 +1,7 @@
 {
   "name": "swagger_editor_desktop",
   "productName": "Swagger Editor",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Swagger Editor Desktop Edition",
   "main": "src/main.js",
   "scripts": {
