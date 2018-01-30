@@ -604,6 +604,13 @@ electron-osx-sign@0.4.8:
     minimist "^1.2.0"
     plist "^2.1.0"
 
+electron-preferences@^0.0.6:
+  version "0.0.6"
+  resolved "http://registry.npm.taobao.org/electron-preferences/download/electron-preferences-0.0.6.tgz#a42fc931bc3c844120d75d1e0ec70f3dff0b085f"
+  dependencies:
+    fs-extra "^5.0.0"
+    lodash "^4.17.4"
+
 electron-publish@19.54.0:
   version "19.54.0"
   resolved "http://registry.npm.taobao.org/electron-publish/download/electron-publish-19.54.0.tgz#f7521550ce869f54b1c0e88d98620d4be56567e4"
@@ -1086,7 +1093,7 @@ locate-path@^2.0.0:
     p-locate "^2.0.0"
     path-exists "^3.0.0"
 
-lodash@^4.14.0, lodash@^4.8.0:
+lodash@^4.14.0, lodash@^4.17.4, lodash@^4.8.0:
   version "4.17.4"
   resolved "http://registry.npm.taobao.org/lodash/download/lodash-4.17.4.tgz#78203a4d1c328ae1d86dca6460e369b57f4055ae"
 
