@@ -54,7 +54,7 @@ class Topbar extends React.Component {
               className: 'topbar-name-btn border-left',
               onClick: () => this.gen()
             }, 'Gen'),
-            process.env.NODE_ENV === 'debug' && React.createElement('div', {
+            React.createElement('div', {
               key: 'Preferences',
               className: 'topbar-name-btn border-left',
               onClick: () => this.config()
@@ -243,7 +243,7 @@ class Topbar extends React.Component {
     // 
   }
   async config() {
-    editor.setOption('showInvisibles', !editor.getOption('showInvisibles'));
+    ipc.send('preferences', 'open');
   }
   about() {
     ipc.send('about', 'open');
@@ -326,3 +326,10 @@ module.exports = function() {
     }
   ]
 };
+
+// accept Preferences Windows message
+ipc.on('preferencesUpdated', (e, preferences) => {
+  const {editor: editorPref} = preferences;
+
+  editor.setOption('showInvisibles', editorPref.showInvisibles === 'true');
+});

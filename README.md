@@ -5,7 +5,13 @@ No longer based on web services, so do not need to take any system port any more
 
 ## Usage
 
+Download the latest version of the corresponding installation package from [Release](https://github.com/muhonglong/swagger-editor-desktop/releases), double-click it. After a few seconds, enjoy yourself.
 
++ Basic Usage (open file, close file, save, save as ...)
++ Dump (Help users optimize yaml content)
+  - It will remove all your comments
+  - it will remove all blank lines
++ Preferences
 
 ## License
 
