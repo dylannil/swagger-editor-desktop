@@ -6,6 +6,17 @@ const ElectronPreferences = require('electron-preferences');
 
 let mainWindow, preferencesWindow;
 
+const notFirstInst = app.makeSingleInstance((commandLine, workingDirectory) => {
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore()
+    mainWindow.focus()
+  }
+});
+
+if (notFirstInst) {
+  app.quit()
+}
+
 app
   .on('ready', () => {
     mainWindow = new BrowserWindow({
