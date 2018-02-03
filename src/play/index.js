@@ -12,6 +12,14 @@ const storage = require('electron-json-storage');
 const untitled = YAML.safeDump(YAML.safeLoad(require('./default.js')));
 const editAction = {};
 
+document.ondragover =
+document.ondrop = e => e.preventDefault();
+document.body.ondrop = e => {
+  e.preventDefault();
+  const f = e.dataTransfer.files[0].path;
+  editAction.open(f);
+}
+
 class Topbar extends React.Component {
   componentDidMount() {
     this.changed = false;
@@ -21,7 +29,7 @@ class Topbar extends React.Component {
     mousetrap.bind(['command+s', 'ctrl+s'], () => this.save());
     mousetrap.bind(['command+shift+s', 'ctrl+shift+s'], () => this.save(true));
     mousetrap.bind(['command+shift+d', 'ctrl+shift+d'], () => this.dump());
-    editAction.open = () => this.open();
+    editAction.open = f => this.open(f);
     editAction.save = resave => this.save(resave)
     editAction.dump = () => this.dump();
     // 
