@@ -33,7 +33,8 @@ class Topbar extends React.Component {
     editAction.save = resave => this.save(resave)
     editAction.dump = () => this.dump();
     // 
-    storage.get('history', (err, data) => {
+    ipc.send('window', 'showOpenTheLastHistory');
+    editAction.openLast = () => storage.get('history', (err, data) => {
       if (err) {
         console.log(err);
         return ;
@@ -77,7 +78,12 @@ class Topbar extends React.Component {
               key: 'Preferences',
               className: 'topbar-name-btn border-left',
               onClick: () => this.config()
-            }, 'Preferences')
+            }, 'Preferences'),
+            React.createElement('div', {
+              key: 'NewWindow',
+              className: 'topbar-name-btn border-left',
+              onClick: () => this.win()
+            }, 'New Window')
           ]),
           React.createElement('div', {
             key: 'about',
@@ -303,6 +309,14 @@ class Topbar extends React.Component {
   about() {
     ipc.send('about', 'open');
   }
+  win() {
+    if (this.newwindowOpening) {
+      return ;
+    }
+    this.newwindowOpening = true;
+    setTimeout(() => this.newwindowOpening = false, 1000);
+    ipc.send('window', 'new');
+  }
 }
 
 class YioLayout extends React.Component {
@@ -384,7 +398,15 @@ module.exports = function() {
 
 // accept Preferences Windows message
 ipc.on('preferencesUpdated', (e, preferences) => {
-  const {editor: editorPref = {}} = preferences;
-
-  editor.setOption('showInvisibles', editorPref.showInvisibles === 'true');
+  if (editor) {
+    const {editor: editorPref = {}} = preferences;
+    editor.setOption('showInvisibles', editorPref.showInvisibles === 'true');
+  } else {
+    console.warn('editor is not able now');
+  }
+});
+ipc.on('history', (e, shouldOpen) => {
+  if (shouldOpen) {
+    editAction.openLast();
+  }
 });

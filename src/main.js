@@ -4,12 +4,16 @@ const {app, BrowserWindow, Menu, ipcMain: ipc} = require('electron');
 const openAboutWindow = require('about-window').default;
 const ElectronPreferences = require('electron-preferences');
 
-let mainWindow, preferencesWindow;
+let mainWindow, windows = [], preferencesWindow;
 
 const notFirstInst = app.makeSingleInstance((commandLine, workingDirectory) => {
-  if (mainWindow) {
-    if (mainWindow.isMinimized()) mainWindow.restore()
-    mainWindow.focus()
+  if (/new-window/i.test(commandLine.join(' '))) {
+    mainWindow = windowConstructor();
+  } else if (mainWindow) {
+    if (mainWindow.isMinimized()) {
+      mainWindow.restore();
+    }
+    mainWindow.focus();
   }
 });
 
@@ -19,97 +23,26 @@ if (notFirstInst) {
 
 app
   .on('ready', () => {
-    mainWindow = new BrowserWindow({
-      show: false,
-      width: 1024,
-      height: 728,
-      icon: path.join(__dirname, '../../res/image/icon.ico'),
-      transparent: false,
-      autoHideMenuBar: true,
-      webPreferences: {
-        devTools: true,
-        webSecurity: false
-      },
-      titleBarStyle: process.platform === 'darwin' ? 'default' : 'hidden-inset',
-      frame: true
-    });
-    mainWindow.loadURL(`file://${__dirname}/play/index.html`);
-    mainWindow.setMenu(null);
-    mainWindow.webContents.on('did-finish-load', () => {
-      mainWindow.show();
-      preferencesWindow && preferencesWindow.broadcast();
-      process.env.NODE_ENV === 'debug' && mainWindow.openDevTools();
-    });
-    mainWindow.on('closed', () => {
-      mainWindow = null;
-    });
+    app.setUserTasks([
+      {
+        program: process.execPath,
+        arguments: process.env.NODE_ENV === 'debug' ?
+          [path.resolve(process.argv[1]), '--new-window'].join(' ') :
+          '--new-window',
+        iconPath: process.execPath,
+        iconIndex: 0,
+        title: 'New Window',
+        description: 'Create a new window'
+      }
+    ]);
+    app.dock && app.dock.setMenu(Menu.buildFromTemplate([
+      { label: 'New Window', click: () => mainWindow = windowConstructor() }
+    ]));
+
+    mainWindow = windowConstructor();
 
     // Preferences Window
-    preferencesWindow = new ElectronPreferences({
-      dataStore: path.resolve(app.getPath('userData'), 'preferences.json'),
-      defaults: {},
-      onLoad: preferences => preferences,
-      sections: [
-        {
-          id: 'editor',
-          label: 'Editor',
-          icon: 'edit-78',
-          form: {
-            groups: [
-              {
-                label: 'Normal',
-                fields: [
-                  {
-                    label: 'Show Invisibles',
-                    key: 'showInvisibles',
-                    type: 'dropdown',
-                    options: [
-                      {label: 'False', value: false},
-                      {label: 'True', value: true}
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        }
-      ]
-    });
-    preferencesWindow.show = function() {
-      if (this.prefsWindow) {
-          return;
-      }
-
-      this.prefsWindow = new BrowserWindow({
-        parent: mainWindow,
-        modal: true,
-        icon: path.join(__dirname, '../../res/image/icon.ico'),
-        transparent: false,
-        autoHideMenuBar: true,
-        webPreferences: {
-          devTools: true,
-          webSecurity: false
-        },
-        titleBarStyle: process.platform === 'darwin' ? 'default' : 'hidden-inset',
-        frame: true,
-        title: 'Preferences',
-        width: 800,
-        height: 600,
-        acceptFirstMouse: true,
-        resizable: false,
-        maximizable: false,
-        backgroundColor: '#E7E7E7',
-        show: true
-      });
-
-      this.prefsWindow.loadURL(`file://${path.join(__dirname, '../node_modules/electron-preferences/build/index.html')}`);
-      this.prefsWindow.setMenu(null);
-      process.env.NODE_ENV === 'debug' && this.prefsWindow.openDevTools();
-
-      this.prefsWindow.on('closed', () => {
-        this.prefsWindow = null;
-      });
-    }
+    preferencesWindow = preferencesWindowConstructor();
   })
   .on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
@@ -117,6 +50,13 @@ app
     }
   });
 
+ipc.on('window', function(e, arg) {
+  if (arg === 'new') {
+    mainWindow = windowConstructor();
+  } else if (arg === 'showOpenTheLastHistory') {
+    e.sender.send('history', windows.length <= 1);
+  }
+});
 ipc.on('about', function(e, arg) {
   if (arg === 'open') {
     about();
@@ -127,6 +67,42 @@ ipc.on('preferences', function(e, arg) {
     preferences();
   }
 });
+
+function windowConstructor(notFirst) {
+  let mWindow = new BrowserWindow({
+    width: 1024,
+    height: 728,
+    icon: path.join(__dirname, '../../res/image/icon.ico'),
+    transparent: false,
+    autoHideMenuBar: true,
+    webPreferences: {
+      devTools: true,
+      webSecurity: false
+    },
+    titleBarStyle: process.platform === 'darwin' ? 'default' : 'hidden-inset',
+    frame: true
+  });
+  mWindow.loadURL(`file://${__dirname}/play/index.html`);
+  mWindow.setMenu(null);
+  mWindow.webContents.on('did-finish-load', () => {
+    preferencesWindow && preferencesWindow.broadcast();
+    process.env.NODE_ENV === 'debug' && mWindow.openDevTools();
+  });
+  mWindow.on('focus', () => {
+    mainWindow = mWindow;
+  });
+  mWindow.on('closed', () => {
+    mWindow === mainWindow && (mainWindow = null);
+    let i = windows.length;
+    while (i--) {
+      if (windows[i] === mWindow) {
+        windows.splice(i, 1);
+      }
+    }
+  });
+  windows.push(mWindow);
+  return mWindow;
+}
 
 function about() {
   const desc = ([
@@ -149,5 +125,80 @@ function about() {
 }
 
 function preferences() {
-  preferencesWindow.show();
+  if (preferencesWindow.prefsWindow) {
+    if (preferencesWindow.prefsWindow.isMinimized()) {
+      preferencesWindow.prefsWindow.restore();
+    }
+    preferencesWindow.prefsWindow.focus();
+  } else {
+    preferencesWindow.show();
+  }
+}
+function preferencesWindowConstructor() {
+  let preferencesWindow = new ElectronPreferences({
+    dataStore: path.resolve(app.getPath('userData'), 'preferences.json'),
+    defaults: {},
+    onLoad: preferences => preferences,
+    sections: [
+      {
+        id: 'editor',
+        label: 'Editor',
+        icon: 'edit-78',
+        form: {
+          groups: [
+            {
+              label: 'Normal',
+              fields: [
+                {
+                  label: 'Show Invisibles',
+                  key: 'showInvisibles',
+                  type: 'dropdown',
+                  options: [
+                    {label: 'False', value: false},
+                    {label: 'True', value: true}
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  });
+  preferencesWindow.show = function() {
+    if (this.prefsWindow) {
+        return;
+    }
+
+    this.prefsWindow = new BrowserWindow({
+      // parent: mainWindow,
+      modal: true,
+      icon: path.join(__dirname, '../../res/image/icon.ico'),
+      transparent: false,
+      autoHideMenuBar: true,
+      webPreferences: {
+        devTools: true,
+        webSecurity: false
+      },
+      titleBarStyle: process.platform === 'darwin' ? 'default' : 'hidden-inset',
+      frame: true,
+      title: 'Preferences',
+      width: 800,
+      height: 600,
+      acceptFirstMouse: true,
+      resizable: false,
+      maximizable: false,
+      backgroundColor: '#E7E7E7',
+      show: true
+    });
+
+    this.prefsWindow.loadURL(`file://${path.join(__dirname, '../node_modules/electron-preferences/build/index.html')}`);
+    this.prefsWindow.setMenu(null);
+    process.env.NODE_ENV === 'debug' && this.prefsWindow.openDevTools();
+
+    this.prefsWindow.on('closed', () => {
+      this.prefsWindow = null;
+    });
+  }
+  return preferencesWindow;
 }
