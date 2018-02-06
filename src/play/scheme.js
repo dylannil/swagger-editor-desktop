@@ -22,7 +22,7 @@ class Schemes extends React.Component {
     return React.createElement('label', {
       htmlFor: "schemes"
     }, [
-      React.createElement('span', {className: "schemes-title"}, "Schemes999"),
+      React.createElement('span', {className: "schemes-title"}, "Schemes"),
       React.createElement('div', {}, [
         React.createElement('select', {
           onChange: e => this.onChange(e)
@@ -32,7 +32,7 @@ class Schemes extends React.Component {
             key: s
           }, s);
         }).toArray()),
-        React.createElement('button', {
+        process.env.NODE_ENV === 'debug' && React.createElement('button', {
           className: 'btn rewrite',
           onClick: e => this.showRewrite(e)
         }, [

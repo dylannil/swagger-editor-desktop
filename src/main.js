@@ -1,8 +1,9 @@
 
 const path = require('path');
-const {app, BrowserWindow, Menu, ipcMain: ipc, session} = require('electron');
+const {app, BrowserWindow, Menu, ipcMain: ipc, session, net, dialog, shell} = require('electron');
 const openAboutWindow = require('about-window').default;
 const ElectronPreferences = require('electron-preferences');
+const storage = require('electron-json-storage');
 
 let mainWindow, windows = [], preferencesWindow;
 
@@ -48,6 +49,8 @@ app
 
     // Preferences Window
     preferencesWindow = preferencesWindowConstructor();
+
+    checkForUpdate();
   })
   .on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
@@ -206,4 +209,61 @@ function preferencesWindowConstructor() {
     });
   }
   return preferencesWindow;
+}
+
+async function checkForUpdate() {
+  if (process.env.NODE_ENV === 'debug') {
+    return ;
+  }
+  let tag = await new Promise((resolve, reject) => {
+    storage.get('latest_tag', (err, data = {}) => {
+      if (err) {
+        reject(err);
+        return ;
+      }
+      resolve(data.tag);
+    });
+  });
+  if (!tag) {
+    tag = await new Promise((resolve, reject) => {
+      const req = net.request({
+        method: 'GET',
+        protocol: 'https:',
+        hostname: 'api.github.com',
+        port: 443,
+        path: '/repos/muhonglong/swagger-editor-desktop/releases/latest'
+      });
+      req.on('response', res => {
+        let str = '';
+        res.on('data', (chunk) => {
+          str += chunk;
+        });
+        res.on('end', () => {
+          const {tag_name: tag} = JSON.parse(str);
+          storage.set('latest_tag', {tag}, err => err && console.log(err));
+          resolve(tag);
+        });
+      });
+      req.end();
+    });
+  }
+  if (tag) {
+    const curr = app.getVersion();
+    const tagList = tag.replace(/^[^\d]*/, '').split(/\.|-/);
+    const currList = curr.replace(/^[^\d]*/, '').split(/\.|-/);
+    for (var i = 0; i < tagList.length; i++) {
+      if (tagList[i] > currList[i]) {
+        dialog.showMessageBox({
+          title: 'Info',
+          message: 'New edition is available, would you like to upgrade it now?',
+          buttons: ['Later', 'Upgrade']
+        }, sn => {
+          if (sn === 1) {
+            shell.openExternal('https://github.com/muhonglong/swagger-editor-desktop/releases');
+          }
+        });
+        break;
+      }
+    }
+  }
 }
