@@ -219,8 +219,8 @@ async function checkForUpdate() {
   let tag = await getLatestTag();
   if (tag) {
     const curr = app.getVersion();
-    const tagList = tag.replace(/^[^\d]*/, '').split(/\.|-/);
-    const currList = curr.replace(/^[^\d]*/, '').split(/\.|-/);
+    const tagList = tag.replace(/^[^\d]*/, '').split(/\.|-/).map(v => parseInt(v));
+    const currList = curr.replace(/^[^\d]*/, '').split(/\.|-/).map(v => parseInt(v));
     for (var i = 0; i < tagList.length; i++) {
       if (tagList[i] > currList[i]) {
         latestTag = tag;
