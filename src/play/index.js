@@ -9,6 +9,7 @@ const {dialog} = require('electron').remote;
 const {ipcRenderer: ipc} = require('electron');
 const mousetrap = require('mousetrap');
 const storage = require('electron-json-storage');
+const schemes = require('./scheme');
 const untitled = YAML.safeDump(YAML.safeLoad(require('./default.js')));
 const editAction = {};
 
@@ -337,7 +338,8 @@ module.exports = function() {
       return {
         components: {
           Topbar,
-          YioLayout
+          YioLayout,
+          schemes
         },
         statePlugins: {
           editor: {

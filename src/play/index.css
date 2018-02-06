@@ -165,3 +165,29 @@ body {
   fill: #547F00;
   cursor: pointer;
 }
+
+.swagger-ui .btn.rewrite {
+  height: 30px;
+  line-height: 1;
+  display: inline-block;
+  color: #3ab62a;
+  border-color: #3ab62a;
+  background-color: transparent;
+  padding: 5px 10px;
+  vertical-align: bottom;
+  margin-left: 5px;
+}
+.swagger-ui .btn.rewrite span {
+  float: left;
+  vertical-align: middle;
+  padding-top: 1px;
+}
+.swagger-ui .btn.rewrite svg {
+  fill: #3ab62a;
+  margin: -2px 0 0 5px;
+}
+
+.rewrite-textarea {
+  box-sizing: border-box;
+  border: 1px solid rgb(139, 139, 139) !important;
+}
