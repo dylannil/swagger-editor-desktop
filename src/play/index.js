@@ -34,7 +34,7 @@ class Topbar extends React.Component {
     editAction.save = resave => this.save(resave)
     editAction.dump = () => this.dump();
     // 
-    ipc.send('window', 'showOpenTheLastHistory');
+    ipc.send('window', 'shouldOpenTheLastHistory');
     editAction.openLast = () => storage.get('history', (err, data) => {
       if (err) {
         console.log(err);

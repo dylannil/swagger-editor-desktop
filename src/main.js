@@ -58,7 +58,7 @@ app
 ipc.on('window', function(e, arg) {
   if (arg === 'new') {
     mainWindow = windowConstructor();
-  } else if (arg === 'showOpenTheLastHistory') {
+  } else if (arg === 'shouldOpenTheLastHistory') {
     e.sender.send('history', windows.length <= 1);
   }
 });
