@@ -1,6 +1,6 @@
 
 const path = require('path');
-const {app, BrowserWindow, Menu, ipcMain: ipc} = require('electron');
+const {app, BrowserWindow, Menu, ipcMain: ipc, session} = require('electron');
 const openAboutWindow = require('about-window').default;
 const ElectronPreferences = require('electron-preferences');
 
@@ -23,6 +23,11 @@ if (notFirstInst) {
 
 app
   .on('ready', () => {
+    session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
+      details.requestHeaders['User-Agent'] = app.getName() + ' ' + app.getVersion();
+      callback({ cancel: false, requestHeaders: details.requestHeaders });
+    });
+
     app.setUserTasks([
       {
         program: process.execPath,
