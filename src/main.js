@@ -3,9 +3,8 @@ const path = require('path');
 const {app, BrowserWindow, Menu, ipcMain: ipc, session, net, dialog, shell} = require('electron');
 const openAboutWindow = require('about-window').default;
 const ElectronPreferences = require('electron-preferences');
-const storage = require('electron-json-storage');
 
-let mainWindow, windows = [], preferencesWindow;
+let mainWindow, windows = [], preferencesWindow, latestTag;
 
 const notFirstInst = app.makeSingleInstance((commandLine, workingDirectory) => {
   if (/new-window/i.test(commandLine.join(' '))) {
@@ -113,15 +112,17 @@ function windowConstructor(notFirst) {
 }
 
 function about() {
-  const desc = ([
+  const desc = [
     'Based on <a href="https://editor.swagger.io">Swagger Editor Online</a>',
     'Using <a href="https://electronjs.org/">Electron</a> technology',
     'Enhanced by <a href="https://github.com/muhonglong">DYLAN</a>'
-  ]).join('<br/>');
+  ];
+  latestTag && desc.push('<a href="https://github.com/muhonglong/swagger-editor-desktop/releases/' + latestTag + '"><button class="upgrade-btn">Upgrade to ' + latestTag + '</button></a>');
   openAboutWindow({
     icon_path: path.join(__dirname, './play/file/icon.png'),
+    css_path: path.join(__dirname, './play/index.css'),
     copyright: 'Copyright (c) 2018 Li Xiao-Bo',
-    description: desc,
+    description: desc.join('<br/>'),
     open_devtools: process.env.NODE_ENV === 'debug',
     package_json_dir: path.join(__dirname, '../'),
     bug_report_url: 'https://github.com/muhonglong/swagger-editor-desktop/issues',
@@ -215,17 +216,29 @@ async function checkForUpdate() {
   if (process.env.NODE_ENV === 'debug') {
     return ;
   }
-  let tag = await new Promise((resolve, reject) => {
-    storage.get('latest_tag', (err, data = {}) => {
-      if (err) {
-        reject(err);
-        return ;
+  let tag = await getLatestTag();
+  if (tag) {
+    const curr = app.getVersion();
+    const tagList = tag.replace(/^[^\d]*/, '').split(/\.|-/);
+    const currList = curr.replace(/^[^\d]*/, '').split(/\.|-/);
+    for (var i = 0; i < tagList.length; i++) {
+      if (tagList[i] > currList[i]) {
+        latestTag = tag;
+        dialog.showMessageBox({
+          title: 'Info',
+          message: 'New edition is available, would you like to upgrade it now?',
+          buttons: ['Later', 'Upgrade']
+        }, sn => {
+          if (sn === 1) {
+            shell.openExternal('https://github.com/muhonglong/swagger-editor-desktop/releases');
+          }
+        });
+        break;
       }
-      resolve(data.tag);
-    });
-  });
-  if (!tag) {
-    tag = await new Promise((resolve, reject) => {
+    }
+  }
+  function getLatestTag() {
+    return new Promise((resolve, reject) => {
       const req = net.request({
         method: 'GET',
         protocol: 'https:',
@@ -240,30 +253,10 @@ async function checkForUpdate() {
         });
         res.on('end', () => {
           const {tag_name: tag} = JSON.parse(str);
-          storage.set('latest_tag', {tag}, err => err && console.log(err));
           resolve(tag);
         });
       });
       req.end();
     });
-  }
-  if (tag) {
-    const curr = app.getVersion();
-    const tagList = tag.replace(/^[^\d]*/, '').split(/\.|-/);
-    const currList = curr.replace(/^[^\d]*/, '').split(/\.|-/);
-    for (var i = 0; i < tagList.length; i++) {
-      if (tagList[i] > currList[i]) {
-        dialog.showMessageBox({
-          title: 'Info',
-          message: 'New edition is available, would you like to upgrade it now?',
-          buttons: ['Later', 'Upgrade']
-        }, sn => {
-          if (sn === 1) {
-            shell.openExternal('https://github.com/muhonglong/swagger-editor-desktop/releases');
-          }
-        });
-        break;
-      }
-    }
   }
 }
