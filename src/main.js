@@ -3,6 +3,7 @@ const path = require('path');
 const {app, BrowserWindow, Menu, ipcMain: ipc, session, net, dialog, shell} = require('electron');
 const openAboutWindow = require('about-window').default;
 const ElectronPreferences = require('electron-preferences');
+const storage = require('electron-json-storage');
 
 let mainWindow, windows = [], preferencesWindow, latestTag;
 
@@ -117,7 +118,7 @@ function about() {
     'Using <a href="https://electronjs.org/">Electron</a> technology',
     'Enhanced by <a href="https://github.com/muhonglong">DYLAN</a>'
   ];
-  latestTag && desc.push('<a href="https://github.com/muhonglong/swagger-editor-desktop/releases/' + latestTag + '"><button class="upgrade-btn">Upgrade to ' + latestTag + '</button></a>');
+  latestTag && desc.push('<a href="https://github.com/muhonglong/swagger-editor-desktop/releases/latest"><button class="upgrade-btn">Upgrade to ' + latestTag + '</button></a>');
   openAboutWindow({
     icon_path: path.join(__dirname, './play/file/icon.png'),
     css_path: path.join(__dirname, './play/index.css'),
@@ -216,7 +217,16 @@ async function checkForUpdate() {
   if (process.env.NODE_ENV === 'debug') {
     return ;
   }
-  let tag = await getLatestTag();
+  let tag = await new Promise((resolve, reject) => {
+    storage.get('updater', (err, data = {}) => {
+      if (err) {
+        reject(err);
+        return ;
+      }
+      resolve(!data.stamp || (Date.now() / 1000 - data.stamp > 162000) ? '' : data.tag);
+    });
+  });
+  tag || (tag = await getLatestTag());
   if (tag) {
     const curr = app.getVersion();
     const tagList = tag.replace(/^[^\d]*/, '').split(/\.|-/).map(v => parseInt(v));
@@ -253,6 +263,7 @@ async function checkForUpdate() {
         });
         res.on('end', () => {
           const {tag_name: tag} = JSON.parse(str);
+          storage.set('updater', {tag, stamp: Math.round(Date.now() / 1000)}, err => err && console.log(err));
           resolve(tag);
         });
       });
