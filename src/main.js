@@ -50,6 +50,11 @@ app
     // Preferences Window
     preferencesWindow = preferencesWindowConstructor();
 
+    const proxy = preferencesWindow.value('default.proxy');
+    if (proxy) {
+      setProxy(proxy);
+    }
+
     checkForUpdate();
   })
   .on('window-all-closed', () => {
@@ -73,6 +78,11 @@ ipc.on('about', function(e, arg) {
 ipc.on('preferences', function(e, arg) {
   if (arg === 'open') {
     preferences();
+  }
+});
+ipc.on('setPreferences', function(e, arg) {
+  if (arg.default.proxy) {
+    setProxy(arg.default.proxy);
   }
 });
 
@@ -151,9 +161,29 @@ function preferencesWindowConstructor() {
     onLoad: preferences => preferences,
     sections: [
       {
+        id: 'default',
+        label: 'Default',
+        icon: 'compass-05',
+        form: {
+          groups: [
+            {
+              label: 'Network',
+              fields: [
+                {
+                  label: 'Proxy',
+                  key: 'proxy',
+                  type: 'text',
+                  help: 'e.g. 127.0.0.1:8888; http=127.0.0.1:9999'
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
         id: 'editor',
         label: 'Editor',
-        icon: 'edit-78',
+        icon: 'pencil',
         form: {
           groups: [
             {
@@ -270,4 +300,16 @@ async function checkForUpdate() {
       req.end();
     });
   }
+}
+
+function setProxy(proxy) {
+  session.defaultSession.setProxy({
+    proxyRules: proxy
+  }, () => {
+    session.defaultSession.resolveProxy('https://github.com', p => {
+      if (!p) {
+        console.warn(`Fail proxy: ${proxy}`);
+      }
+    });
+  });
 }

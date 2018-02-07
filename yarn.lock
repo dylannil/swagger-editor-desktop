@@ -1728,9 +1728,9 @@ supports-color@^4.0.0:
   dependencies:
     has-flag "^2.0.0"
 
-swagger-editor-dist@^3.2.5:
-  version "3.2.5"
-  resolved "http://registry.npm.taobao.org/swagger-editor-dist/download/swagger-editor-dist-3.2.5.tgz#ab31928fec9fd015c891a33e960280dd93c15e1e"
+swagger-editor-dist@^3.2.8:
+  version "3.2.8"
+  resolved "http://registry.npm.taobao.org/swagger-editor-dist/download/swagger-editor-dist-3.2.8.tgz#004f1d0b5d62ac1e3510a435915e05a7f7291f47"
 
 tar-stream@^1.5.0:
   version "1.5.5"

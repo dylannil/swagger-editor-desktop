@@ -31,7 +31,7 @@
     "electron-preferences": "^0.0.6",
     "js-yaml": "^3.10.0",
     "mousetrap": "^1.6.1",
-    "swagger-editor-dist": "^3.2.5"
+    "swagger-editor-dist": "^3.2.8"
   },
   "devDependencies": {
     "cross-env": "^5.1.3",
