@@ -51,9 +51,7 @@ app
     preferencesWindow = preferencesWindowConstructor();
 
     const proxy = preferencesWindow.value('default.proxy');
-    if (proxy) {
-      setProxy(proxy);
-    }
+    setProxy(proxy);
 
     checkForUpdate();
   })
@@ -81,9 +79,7 @@ ipc.on('preferences', function(e, arg) {
   }
 });
 ipc.on('setPreferences', function(e, arg) {
-  if (arg.default.proxy) {
-    setProxy(arg.default.proxy);
-  }
+  setProxy(arg.default.proxy);
 });
 
 function windowConstructor(notFirst) {
@@ -304,7 +300,7 @@ async function checkForUpdate() {
 
 function setProxy(proxy) {
   session.defaultSession.setProxy({
-    proxyRules: proxy
+    proxyRules: proxy || 'direct://'
   }, () => {
     session.defaultSession.resolveProxy('https://github.com', p => {
       if (!p) {
