@@ -34,7 +34,7 @@ class Schemes extends React.Component {
             key: s
           }, s);
         }).toArray()),
-        process.env.NODE_ENV === 'debug' && React.createElement('button', {
+        React.createElement('button', {
           className: 'btn rewrite',
           onClick: e => this.showRewrite(e)
         }, [
