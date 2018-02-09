@@ -6,6 +6,8 @@ class Schemes extends React.Component {
 
     //fire 'change' event to set default 'value' of select
     this.setScheme(schemes.first())
+
+    window.rewrite = undefined;
   }
 
   componentWillReceiveProps(nextProps) {
@@ -44,6 +46,7 @@ class Schemes extends React.Component {
     ]);
   }
   renderPopup() {
+    const {rewriteCodeIsLegal} = this.state || {};
     return React.createElement('div', {
       className: 'dialog-ux'
     }, [
@@ -65,8 +68,10 @@ class Schemes extends React.Component {
             React.createElement('div', {className: "modal-ux-content"}, [
               React.createElement('p', null, 'Modify requests before sending out to the remote server.'),
               React.createElement('textarea', {
-                className: "rewrite-textarea",
-                placeholder: "module.exports = function rewrite() { /* todo... */ }"
+                className: "rewrite-textarea" + (rewriteCodeIsLegal === false ? ' error' : ''),
+                placeholder: "req.url += '?x=1'",
+                defaultValue: this.rewriteCode || '',
+                onChange: e => this.useRewrite(e)
               })
             ])
           ])
@@ -90,6 +95,16 @@ class Schemes extends React.Component {
   }
   closeRewrite() {
     this.setState({rewrite: false});
+  }
+  useRewrite(e) {
+    try {
+      this.rewriteCode = e.target.value;
+      eval('window.rewrite = function(req) { ' + this.rewriteCode + '; return req; }');
+      this.setState({rewriteCodeIsLegal: true});
+    } catch (e) {
+      this.setState({rewriteCodeIsLegal: false});
+      window.rewrite = undefined;
+    }
   }
 }
 

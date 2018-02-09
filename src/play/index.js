@@ -44,6 +44,12 @@ class Topbar extends React.Component {
         this.open(data.list[0]);
       }
     });
+    // rewrite
+    const fetch = this.props.fn.fetch;
+    if (!fetch.newer) {
+      this.props.fn.fetch = req => fetch(window.rewrite ? window.rewrite(req) : req);
+      this.props.fn.fetch.newer = true;
+    }
   }
   render() {
     let yaml = this.props.specSelectors.specStr();

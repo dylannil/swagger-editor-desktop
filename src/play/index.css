@@ -191,6 +191,9 @@ body {
   box-sizing: border-box;
   border: 1px solid rgb(139, 139, 139) !important;
 }
+.rewrite-textarea.error {
+  border: 1px solid rgb(255, 0, 0) !important;
+}
 
 .upgrade-btn {
   background-color: red;
