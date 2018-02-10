@@ -8,8 +8,18 @@ const YAML = require('js-yaml');
 const {dialog} = require('electron').remote;
 const {ipcRenderer: ipc} = require('electron');
 const mousetrap = require('mousetrap');
+const storage = require('electron-json-storage');
+const schemes = require('./scheme');
 const untitled = YAML.safeDump(YAML.safeLoad(require('./default.js')));
 const editAction = {};
+
+document.ondragover =
+document.ondrop = e => e.preventDefault();
+document.body.ondrop = e => {
+  e.preventDefault();
+  const f = e.dataTransfer.files[0].path;
+  editAction.open(f);
+}
 
 class Topbar extends React.Component {
   componentDidMount() {
@@ -20,9 +30,26 @@ class Topbar extends React.Component {
     mousetrap.bind(['command+s', 'ctrl+s'], () => this.save());
     mousetrap.bind(['command+shift+s', 'ctrl+shift+s'], () => this.save(true));
     mousetrap.bind(['command+shift+d', 'ctrl+shift+d'], () => this.dump());
-    editAction.open = () => this.open();
+    editAction.open = f => this.open(f);
     editAction.save = resave => this.save(resave)
     editAction.dump = () => this.dump();
+    // 
+    ipc.send('window', 'shouldOpenTheLastHistory');
+    editAction.openLast = () => storage.get('history', (err, data) => {
+      if (err) {
+        console.log(err);
+        return ;
+      }
+      if (data && data.list && data.list.length) {
+        this.open(data.list[0]);
+      }
+    });
+    // rewrite
+    const fetch = this.props.fn.fetch;
+    if (!fetch.newer) {
+      this.props.fn.fetch = req => fetch(window.rewrite ? window.rewrite(req) : req);
+      this.props.fn.fetch.newer = true;
+    }
   }
   render() {
     let yaml = this.props.specSelectors.specStr();
@@ -53,7 +80,17 @@ class Topbar extends React.Component {
               key: 'CodeGen',
               className: 'topbar-name-btn border-left',
               onClick: () => this.gen()
-            }, 'Gen')
+            }, 'Gen'),
+            React.createElement('div', {
+              key: 'Preferences',
+              className: 'topbar-name-btn border-left',
+              onClick: () => this.config()
+            }, 'Preferences'),
+            React.createElement('div', {
+              key: 'NewWindow',
+              className: 'topbar-name-btn border-left',
+              onClick: () => this.win()
+            }, 'New Window')
           ]),
           React.createElement('div', {
             key: 'about',
@@ -122,7 +159,7 @@ class Topbar extends React.Component {
       ])
     );
   }
-  async open() {
+  async open(file) {
     if (this.changed) {
       let ret = await this.close(true);
       if (ret === -1) {
@@ -136,23 +173,59 @@ class Topbar extends React.Component {
         });
       }, 300);
     } else {
-      dialog.showOpenDialog({
-        buttonLabel: 'open',
-        properties: ['openFile', 'createDirectory'],
-        filters: [{name: 'yaml', extensions: ['yaml']}],
-        message: 'open a swagger file to read & edit'
-      }, filePaths => {
-        let file = (filePaths || [])[0];
-        if (file) {
-          file = path.resolve(file);
-          fs.readFile(file, (err, data) => {
-            var code = data.toString();
-            this.yaml = code;
-            this.props.specActions.updateSpec(this.yaml);
-            this.showfile(file);
+      if (!file) {
+        file = await new Promise((resolve, reject) => {
+          dialog.showOpenDialog({
+            buttonLabel: 'open',
+            properties: ['openFile', 'createDirectory'],
+            filters: [{name: 'yaml', extensions: ['yaml']}],
+            message: 'open a swagger file to read & edit'
+          }, filePaths => resolve((filePaths || [])[0]));
+        });
+      }
+      if (file) {
+        file = await new Promise((resolve, reject) => {
+          fs.access(file, fs.constants.R_OK | fs.constants.W_OK, err => {
+            if (err) {
+              resolve();
+            } else {
+              resolve(file);
+            }
+          })
+        });
+      }
+      if (file) {
+        file = path.resolve(file);
+        fs.readFile(file, (err, data) => {
+          var code = data.toString();
+          this.yaml = code;
+          this.props.specActions.updateSpec(this.yaml);
+          storage.get('history', (err, data) => {
+            if (err) {
+              console.log(err);
+              return ;
+            }
+            const list = data.list || [];
+            let i = list.length;
+            while (i--) {
+              if (list[i] === file) {
+                list.splice(i, 1);
+              }
+            }
+            list.unshift(file);
+            if (list.length > 10) {
+              list = list.slice(0, 10);
+            }
+            data.list = list;
+            storage.set('history', data, err => {
+              if (err) {
+                console.log(err);
+              }
+            });
           });
-        }
-      })
+          this.showfile(file);
+        });
+      }
     }
   }
   async save(resave) {
@@ -208,7 +281,8 @@ class Topbar extends React.Component {
     }
   }
   showfile(file = '') {
-    this.file = file;
+    window.file = this.file = file;
+    window.acts && window.acts.refreshRules && window.acts.refreshRules();
     let basename = path.basename(file);
     this.refs.file.innerHTML = basename || 'untitled.yaml';
     this.refs.file.title = file || 'untitled.yaml';
@@ -237,8 +311,19 @@ class Topbar extends React.Component {
   async gen() {
     // 
   }
+  async config() {
+    ipc.send('preferences', 'open');
+  }
   about() {
     ipc.send('about', 'open');
+  }
+  win() {
+    if (this.newwindowOpening) {
+      return ;
+    }
+    this.newwindowOpening = true;
+    setTimeout(() => this.newwindowOpening = false, 1000);
+    ipc.send('window', 'new');
   }
 }
 
@@ -260,7 +345,8 @@ module.exports = function() {
       return {
         components: {
           Topbar,
-          YioLayout
+          YioLayout,
+          schemes
         },
         statePlugins: {
           editor: {
@@ -268,6 +354,7 @@ module.exports = function() {
               onLoad: (ori, sys) => (context) => {
                 const {editor} = context;
                 // ori(context);
+                global.editor = editor;
                 editor.commands.addCommand({
                   name: 'open',
                   bindKey: {
@@ -317,3 +404,18 @@ module.exports = function() {
     }
   ]
 };
+
+// accept Preferences Windows message
+ipc.on('preferencesUpdated', (e, preferences) => {
+  if (editor) {
+    const {editor: editorPref = {}} = preferences;
+    editor.setOption('showInvisibles', editorPref.showInvisibles === 'true');
+  } else {
+    console.warn('editor is not able now');
+  }
+});
+ipc.on('history', (e, shouldOpen) => {
+  if (shouldOpen) {
+    editAction.openLast();
+  }
+});
