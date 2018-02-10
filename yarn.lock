@@ -593,6 +593,16 @@ electron-download@^3.0.1:
     semver "^5.3.0"
     sumchecker "^1.2.0"
 
+electron-json-storage@^4.0.2:
+  version "4.0.2"
+  resolved "http://registry.npm.taobao.org/electron-json-storage/download/electron-json-storage-4.0.2.tgz#c0d662ccd01bc6567d6078f17a6842ac74328ce4"
+  dependencies:
+    async "^2.0.0"
+    lodash "^4.0.1"
+    mkdirp "^0.5.1"
+    rimraf "^2.5.1"
+    rwlock "^5.0.0"
+
 electron-osx-sign@0.4.8:
   version "0.4.8"
   resolved "http://registry.npm.taobao.org/electron-osx-sign/download/electron-osx-sign-0.4.8.tgz#f0b9fadded9e1e54ec35fa89877b5c6c34c7bc40"
@@ -603,6 +613,13 @@ electron-osx-sign@0.4.8:
     isbinaryfile "^3.0.2"
     minimist "^1.2.0"
     plist "^2.1.0"
+
+electron-preferences@^0.0.6:
+  version "0.0.6"
+  resolved "http://registry.npm.taobao.org/electron-preferences/download/electron-preferences-0.0.6.tgz#a42fc931bc3c844120d75d1e0ec70f3dff0b085f"
+  dependencies:
+    fs-extra "^5.0.0"
+    lodash "^4.17.4"
 
 electron-publish@19.54.0:
   version "19.54.0"
@@ -1086,7 +1103,7 @@ locate-path@^2.0.0:
     p-locate "^2.0.0"
     path-exists "^3.0.0"
 
-lodash@^4.14.0, lodash@^4.8.0:
+lodash@^4.0.1, lodash@^4.14.0, lodash@^4.17.4, lodash@^4.8.0:
   version "4.17.4"
   resolved "http://registry.npm.taobao.org/lodash/download/lodash-4.17.4.tgz#78203a4d1c328ae1d86dca6460e369b57f4055ae"
 
@@ -1174,6 +1191,12 @@ minimist@^1.1.0, minimist@^1.1.3, minimist@^1.2.0:
 mkdirp@0.5.0:
   version "0.5.0"
   resolved "http://registry.npm.taobao.org/mkdirp/download/mkdirp-0.5.0.tgz#1d73076a6df986cd9344e15e71fcc05a4c9abf12"
+  dependencies:
+    minimist "0.0.8"
+
+mkdirp@^0.5.1:
+  version "0.5.1"
+  resolved "http://registry.npm.taobao.org/mkdirp/download/mkdirp-0.5.1.tgz#30057438eac6cf7f8c4767f38648d6697d75c903"
   dependencies:
     minimist "0.0.8"
 
@@ -1511,11 +1534,15 @@ require-main-filename@^1.0.1:
   version "1.0.1"
   resolved "http://registry.npm.taobao.org/require-main-filename/download/require-main-filename-1.0.1.tgz#97f717b69d48784f5f526a6c5aa8ffdda055a4d1"
 
-rimraf@^2.2.8:
+rimraf@^2.2.8, rimraf@^2.5.1:
   version "2.6.2"
   resolved "http://registry.npm.taobao.org/rimraf/download/rimraf-2.6.2.tgz#2ed8150d24a16ea8651e6d6ef0f47c4158ce7a36"
   dependencies:
     glob "^7.0.5"
+
+rwlock@^5.0.0:
+  version "5.0.0"
+  resolved "http://registry.npm.taobao.org/rwlock/download/rwlock-5.0.0.tgz#888d6a77a3351cc1a209204ef2ee1722093836cf"
 
 safe-buffer@^5.0.1, safe-buffer@^5.1.1, safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.1"
@@ -1701,9 +1728,9 @@ supports-color@^4.0.0:
   dependencies:
     has-flag "^2.0.0"
 
-swagger-editor-dist@^3.2.5:
-  version "3.2.5"
-  resolved "http://registry.npm.taobao.org/swagger-editor-dist/download/swagger-editor-dist-3.2.5.tgz#ab31928fec9fd015c891a33e960280dd93c15e1e"
+swagger-editor-dist@^3.2.8:
+  version "3.2.8"
+  resolved "http://registry.npm.taobao.org/swagger-editor-dist/download/swagger-editor-dist-3.2.8.tgz#004f1d0b5d62ac1e3510a435915e05a7f7291f47"
 
 tar-stream@^1.5.0:
   version "1.5.5"
