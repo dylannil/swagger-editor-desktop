@@ -11,6 +11,13 @@
 ::-webkit-scrollbar-thumb {
   background-color: rgba(99, 99, 99, 0.6);
 }
+::-webkit-input-placeholder {
+  color: rgb(185, 185, 185);
+}
+input:focus,
+textarea:focus {
+  outline: 0px;
+}
 
 body {
   font-family: Roboto, sans-serif;
@@ -187,12 +194,86 @@ body {
   margin: -2px 0 0 5px;
 }
 
+.rewrite-rule {
+  margin: 1em 0;
+  border: 2px solid rgb(177, 177, 177);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.rewrite-rule-head {
+  padding: 0 4.5em 0 3.5em;
+  position: relative;
+}
+.rewrite-rule-fold {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 3em;
+  text-align: center;
+  border: 0px;
+  background-color: transparent;
+  fill: #4c4c4c;
+  padding: 0;
+}
+.rewrite-rule-fold > svg {
+  vertical-align: -70%;
+}
+.rewrite-rule-desc {
+  border: 0px!important;
+  width: 100%;
+  padding: 8px 0px !important;
+}
+.rewrite-rule-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 4em;
+  text-align: center;
+  border: 0px;
+  background-color: transparent;
+  color: green;
+  display: block;
+}
+.rewrite-rule-btn.error {
+  color: red;
+}
 .rewrite-textarea {
   box-sizing: border-box;
-  border: 1px solid rgb(139, 139, 139) !important;
+  border-top: 1px solid rgb(177, 177, 177) !important;
+  line-height: 1.6em;
+  vertical-align: bottom;
+  border-radius: 0px !important;
 }
-.rewrite-textarea.error {
-  border: 1px solid rgb(255, 0, 0) !important;
+.rewrite-textarea:focus {
+  border-width: 0px!important;
+  border-top: 1px solid rgb(177, 177, 177) !important;
+}
+.rewrite-codeshow {
+  font-size: 12px;
+  width: 100%;
+  max-height: 280px;
+  padding: 10px;
+  border: none;
+  outline: none;
+  background: hsla(0,0%,100%,.8);
+  font-family: Source Code Pro,monospace;
+  font-weight: 600;
+  color: #3b4151;
+  box-sizing: border-box;
+  border-top: 1px solid rgb(177, 177, 177) !important;
+  line-height: 1.6em;
+  vertical-align: bottom;
+  border-radius: 0px !important;
+}
+.rewrite-rule.inuse {
+  border-color: green;
+}
+.rewrite-rule.new {
+  cursor: pointer;
+  padding: 12px 43px;
+  float: left;
 }
 
 .upgrade-btn {

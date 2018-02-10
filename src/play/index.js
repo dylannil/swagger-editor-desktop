@@ -281,7 +281,8 @@ class Topbar extends React.Component {
     }
   }
   showfile(file = '') {
-    this.file = file;
+    window.file = this.file = file;
+    window.acts && window.acts.refreshRules && window.acts.refreshRules();
     let basename = path.basename(file);
     this.refs.file.innerHTML = basename || 'untitled.yaml';
     this.refs.file.title = file || 'untitled.yaml';
