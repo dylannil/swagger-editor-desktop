@@ -55,6 +55,11 @@ app
 
     checkForUpdate();
   })
+  .on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      mainWindow = windowConstructor();
+    }
+  })
   .on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
       app.quit();
