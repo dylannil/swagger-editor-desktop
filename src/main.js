@@ -29,7 +29,7 @@ app
       callback({ cancel: false, requestHeaders: details.requestHeaders });
     });
 
-    app.setUserTasks([
+    app.setUserTasks && app.setUserTasks([
       {
         program: process.execPath,
         arguments: process.env.NODE_ENV === 'debug' ?
