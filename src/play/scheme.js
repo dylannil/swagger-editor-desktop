@@ -117,7 +117,11 @@ class Schemes extends React.Component {
                   r.fold === false && React.createElement('button', {
                     className: 'rewrite-rule-btn' + (r.edit ? ' inedit' : '') + (r.legal === false ? ' error' : ''),
                     onClick: e => {e.stopPropagation(); !r.edit ? this.editRewriteRule(r, i) : this.saveRewriteRule(r, i)}
-                  }, r.edit ? 'save' : 'edit')
+                  }, r.edit ? 'save' : 'edit'),
+                  r.fold === false && React.createElement('button', {
+                    className: 'rewrite-rule-btn remove',
+                    onClick: e => {e.stopPropagation(); this.removeRewriteRule(r, i)}
+                  }, 'remove'),
                 ]),
                 (r.fold === false) && (r.edit ? React.createElement('textarea', {
                   ref: r => {
@@ -161,17 +165,7 @@ class Schemes extends React.Component {
   closeRewrite() {
     this.setState({rewrite: false});
     // 
-    const uses = this.uses || {};
-    let ids = uses[window.file] = [];
-    storage.set('rewrite_rules', {rules: this.rules.map(it => {
-      it.used && ids.push(it.id);
-      return {
-        id: it.id,
-        desc: it.desc,
-        code: it.code,
-        legal: it.legal
-      };
-    }), uses});
+    this.saveToStore();
   }
 
   getRewriteRules() {
@@ -205,6 +199,12 @@ class Schemes extends React.Component {
     this.rules.push(rule);
     this.setState();
   }
+  removeRewriteRule(r, i) {
+    this.rules.splice(i, 1);
+    this.setState();
+    // 
+    this.saveToStore();
+  }
   foldRewriteRule(r, i) {
     if (r.edit) {
       r = this.saveRewriteRule(r, i);
@@ -225,17 +225,7 @@ class Schemes extends React.Component {
     }));
     this.setState();
     // 
-    const uses = this.uses || {};
-    let ids = uses[window.file] = [];
-    storage.set('rewrite_rules', {rules: this.rules.map(it => {
-      it.used && ids.push(it.id);
-      return {
-        id: it.id,
-        desc: it.desc,
-        code: it.code,
-        legal: it.legal
-      };
-    }), uses});
+    this.saveToStore();
     // 
     return r;
   }
@@ -250,6 +240,20 @@ class Schemes extends React.Component {
   useRewriteRule(r, i) {
     this.rules.splice(i, 1, Object.assign({}, r, {used: !r.used}));
     this.setState();
+  }
+
+  saveToStore() {
+    const uses = this.uses || {};
+    let ids = uses[window.file] = [];
+    storage.set('rewrite_rules', {rules: this.rules.map(it => {
+      it.used && ids.push(it.id);
+      return {
+        id: it.id,
+        desc: it.desc,
+        code: it.code,
+        legal: it.legal
+      };
+    }), uses});
   }
 }
 

@@ -201,7 +201,7 @@ body {
   overflow: hidden;
 }
 .rewrite-rule-head {
-  padding: 0 4.5em 0 3.5em;
+  padding: 0 10em 0 3.5em;
   position: relative;
 }
 .rewrite-rule-fold {
@@ -227,7 +227,7 @@ body {
 .rewrite-rule-btn {
   position: absolute;
   top: 0;
-  right: 0;
+  right: 5em;
   bottom: 0;
   width: 4em;
   text-align: center;
@@ -235,6 +235,9 @@ body {
   background-color: transparent;
   color: green;
   display: block;
+}
+.rewrite-rule-btn.remove {
+  right: 1em;
 }
 .rewrite-rule-btn.error {
   color: red;
